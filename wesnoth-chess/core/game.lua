@@ -3,6 +3,8 @@ local game = {}
 function game.init()
     wesnoth.message("DEBUG", "game.init() 실행됨")
 
+    local w, h = wesnoth.get_map_size()
+    wesnoth.message("DEBUG", "맵 크기 확인: " .. w .. " x " .. h)
     wesnoth.message("CHESS", "Spawning initial board pieces")
 
     -- White pieces
