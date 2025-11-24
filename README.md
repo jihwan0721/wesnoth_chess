@@ -54,8 +54,6 @@ wesnoth-chess-7team/
 │ ├─ lua/
 │ │ └─ chess_logic.lua
 │ └─ images/ (기물 이미지는 사용자가 추가)
-├─ docs/
-│ └─ 프로젝트-중간보고서.pdf
 └─ README.md
 
 
