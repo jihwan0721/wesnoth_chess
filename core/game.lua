@@ -88,7 +88,7 @@ function game.highlight_moves(u)
     end
 end
 
-
+--이동 함수 
 function game.on_move_unit(to_x, to_y)
     wesnoth.message("DEBUG", "on_move_unit() 실행됨")
 
