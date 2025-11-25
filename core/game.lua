@@ -35,49 +35,81 @@ function game.init()
         wesnoth.put_unit({ x=x, y=2, type="Chess_Pawn_Black", side=2 })
     end
 end
+
 function game.on_select_unit()
-    local u = wesnoth.get_unit(wesnoth.current.hex[0], wesnoth.current.hex[1])
-    if not u then return end
+    local x = tonumber(wml.variables.x1)
+    local y = tonumber(wml.variables.y1)
+    
+    if not x or not y then
+        wesnoth.message("ERROR", "x1,y1좌표가 존재하지 않습니다")
+        return
+    end
+
+    local u = wesnoth.get_unit(x, y)
+
+    if not u then
+        wesnoth.message("ERROR", "Unit not found at"..wml.variables.x1..","..wml.variables.y1)
+        return
+    end
 
     wesnoth.message("CHESS", "선택됨: "..u.type)
 
     game.selected = u
-
-    -- 이동 가능 위치 표시
     game.highlight_moves(u)
 end
 
+
 function game.highlight_moves(u)
+    wesnoth.message("DEBUG", "Highlight moves for "..u.type)
     wesnoth.wml_actions.scroll_to({x=u.x, y=u.y})
     
-    -- 예시: 모든 방향 1칸 가능
+    -- 기존 표시 제거
+    wesnoth.wml_actions.remove_item({})
+
     for dx = -1,1 do
         for dy = -1,1 do
             if not (dx==0 and dy==0) then
                 local nx = u.x + dx
                 local ny = u.y + dy
                 
-                wesnoth.wml_actions.item({
-                    x=nx, 
-                    y=ny,
-                    image="misc/mark-hex.png"
-                })
+                if nx >= 1 and nx <= 8 and ny >= 1 and ny <= 8 then
+                    -- 목적 hex가 비어 있는지 확인
+                    local target = wesnoth.get_unit(nx, ny)
+                    if not target then
+                        wesnoth.wml_actions.item({
+                            x=nx,
+                            y=ny,
+                            image="misc/mark-hex.png"
+                        })
+                    end
+                end
             end
         end
     end
 end
 
-function game.on_move_unit()
-    if not game.selected then return end
+
+function game.on_move_unit(to_x, to_y)
+    wesnoth.message("DEBUG", "on_move_unit() 실행됨")
+
+    if not game.selected then
+        wesnoth.message("ERROR", "이동하려는 선택된 유닛이 없습니다")
+        return
+    end
 
     local u = game.selected
-    local to_x = wesnoth.current.hex[0]
-    local to_y = wesnoth.current.hex[1]
 
-    wesnoth.message("CHESS", u.type.." 이동 → "..to_x..","..to_y)
-    wesnoth.move_unit(u, to_x, to_y)
+    wesnoth.wml_actions.move_unit({
+        id = u.id,
+        x  = to_x,
+        y  = to_y,
+    })
+
+    local after_pos = tostring(u.x)..","..tostring(u.y)
+    wesnoth.message("Lua>", "REAL UNIT POS(after)="..after_pos)
 
     game.selected = nil
 end
+
 
 return game
