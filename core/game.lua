@@ -204,11 +204,11 @@ function game.highlight_moves(u)
     local moves = game.get_legal_moves(u)
     for _, hex in ipairs(moves) do
         local target = wesnoth.get_unit(hex.x, hex.y)
-        -- 적군은 빨강, 빈땅은 초록
-        local img = "misc/hover-hex.png"
-        
-        wesnoth.wml_actions.item({ x=hex.x, y=hex.y, halo=img })
-        table.insert(game.highlighted_hexes, { x=hex.x, y=hex.y, is_castle=hex.is_castle })
+        if hex.x >= 1 and hex.x <= 8 and hex.y >= 1 and hex.y <= 8 then
+            local img = "misc/hover-hex.png"
+            wesnoth.wml_actions.item({ x=hex.x, y=hex.y, halo=img })
+            table.insert(game.highlighted_hexes, hex)
+        end
     end
     wesnoth.wml_actions.redraw({})
 end
@@ -230,7 +230,7 @@ function game.clear_selected_unit_highlight()
 end
 -- [[ 8. 이동 규칙 (Logic) ]] --
 local function check_spot(u, x, y)
-    if x < 1 or x > 8 or y < 1 or y > 10 then return "blocked" end
+    if x < 1 or x > 8 or y < 1 or y > 8 then return "blocked" end
     local target = wesnoth.get_unit(x, y)
     if not target then return "empty"
     elseif target.side ~= u.side then return "enemy"
