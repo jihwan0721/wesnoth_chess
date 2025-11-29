@@ -508,7 +508,7 @@ function game.get_piece_value(u)
     if u.type:find("Rook") then return 5 end
     if u.type:find("Bishop") or u.type:find("Knight") then return 3 end
     if u.type:find("Pawn") then return 1 end
-    if u.type:find("King") then return 10 end
+    if u.type:find("King") then return 999 end
     return 0
 end
 
@@ -599,6 +599,7 @@ function game.ai_score_move(u, mv)
 
     return score
 end
+
 
 function game.end_game(dead_side)
     -- 1. 경로 및 이미지 설정
