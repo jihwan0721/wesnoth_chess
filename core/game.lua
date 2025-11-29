@@ -348,6 +348,7 @@ local function get_step_moves(u, offsets)
     return moves
 end
 
+
 function game.get_rook_moves(u) return get_sliding_moves(u, {{0,-1},{0,1},{-1,0},{1,0}}) end
 function game.get_bishop_moves(u) return get_sliding_moves(u, {{-1,-1},{1,-1},{-1,1},{1,1}}) end
 function game.get_queen_moves(u) return get_sliding_moves(u, {{0,-1},{0,1},{-1,0},{1,0},{-1,-1},{1,-1},{-1,1},{1,1}}) end
