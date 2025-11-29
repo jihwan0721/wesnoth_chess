@@ -3,6 +3,7 @@ local game = {}
 
 game.selected_unit = nil
 game.highlighted_hexes = {}
+game.threat_highlights = {}
 
 -- [[ 2. 게임 초기화 ]] --
 function game.init()
@@ -88,21 +89,31 @@ end
 
 -- [[ 3. 유닛 선택 로직 (좌클릭) ]] --
 function game.on_select()
+
     game.clear_highlights()
     game.clear_selected_unit_highlight()
+    game.clear_threat_highlights()
+
     local x, y = wesnoth.interface.get_hovered_hex()
+    local side = wesnoth.current.side
+
+    local threats = game.print_threats_on_tile(x, y, side)
+    if threats and #threats > 0 then
+        game.highlight_threats(threats)
+    end
+
     local u = wesnoth.get_unit(x, y)
-    -- 내 턴이고 내 유닛이면 선택
-    if u and u.side == wesnoth.current.side then
+
+    if u and u.side == side then
         game.selected_unit = u
         game.selected_unit_hex = {x=u.x, y=u.y}
         wesnoth.wml_actions.item({ x=u.x, y=u.y, image="misc/hover-hex-yours-bottom.png" })
-        game.highlight_moves(u) -- 이동 범위 표시
+        game.highlight_moves(u)
     else
-        -- 빈 땅이나 적을 좌클릭하면 선택 해제
         game.selected_unit = nil
     end
 end
+
 
 -- [[ 4. 메뉴 조건 확인 (우클릭 시 발동) ]] --
 function game.check_menu_condition()
@@ -247,6 +258,35 @@ function game.clear_selected_unit_highlight()
         game.selected_unit_hex = nil
     end
 end
+function game.highlight_threats(threats)
+
+    game.threat_highlights = {}
+
+    for _, t in ipairs(threats) do
+        wesnoth.wml_actions.item({
+            x = t.x,
+            y = t.y,
+            halo = "misc/hover-hex-enemy-bottom.png"
+        })
+        table.insert(game.threat_highlights, {x = t.x, y = t.y})
+    end
+
+    wesnoth.wml_actions.redraw({})
+end
+
+
+
+function game.clear_threat_highlights()
+    if not game.threat_highlights then return end
+
+    for _, hex in ipairs(game.threat_highlights) do
+        wesnoth.wml_actions.remove_item({x = hex.x, y = hex.y})
+    end
+
+    game.threat_highlights = {}
+end
+
+
 -- [[ 8. 이동 규칙 (Logic) ]] --
 local function check_spot(u, x, y)
     if x < 1 or x > 8 or y < 1 or y > 8 then return "blocked" end
@@ -780,6 +820,35 @@ function game.get_promotion_unit(side, choice)
         end
     end
 end
+
+function game.print_threats_on_tile(tile_x, tile_y, side)
+    game.clear_threat_highlights()
+
+    local threats = {}
+    local enemies = wesnoth.get_units({ side = (side == 1) and 2 or 1 })
+
+    for _, enemy in ipairs(enemies) do
+        local moves = game.get_legal_moves(enemy)
+        for _, mv in ipairs(moves) do
+            if mv.x == tile_x and mv.y == tile_y then
+                table.insert(threats, enemy)
+            end
+        end
+    end
+
+    if #threats == 0 then
+        wesnoth.message("INFO", "이 위치를 위협하는 적 유닛은 없습니다.")
+    else
+        local msg = "위협 유닛:\n"
+        for _, t in ipairs(threats) do
+            msg = msg .. "- " .. t.type .. " (" .. t.x .. "," .. t.y .. ")\n"
+        end
+        wesnoth.message("THREAT", msg)
+    end
+    
+    return threats
+end
+
 
 
 
