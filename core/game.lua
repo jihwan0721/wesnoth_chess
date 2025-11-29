@@ -114,7 +114,6 @@ function game.on_select()
     end
 end
 
-
 -- [[ 4. 메뉴 조건 확인 (우클릭 시 발동) ]] --
 function game.check_menu_condition()
     if not game.selected_unit then return false end
@@ -258,6 +257,7 @@ function game.clear_selected_unit_highlight()
         game.selected_unit_hex = nil
     end
 end
+
 function game.highlight_threats(threats)
 
     game.threat_highlights = {}
@@ -266,15 +266,13 @@ function game.highlight_threats(threats)
         wesnoth.wml_actions.item({
             x = t.x,
             y = t.y,
-            halo = "misc/hover-hex-enemy-bottom.png"
+            halo = "misc/ellipse-selected-bottom.png"
         })
         table.insert(game.threat_highlights, {x = t.x, y = t.y})
     end
 
     wesnoth.wml_actions.redraw({})
 end
-
-
 
 function game.clear_threat_highlights()
     if not game.threat_highlights then return end
@@ -285,7 +283,6 @@ function game.clear_threat_highlights()
 
     game.threat_highlights = {}
 end
-
 
 -- [[ 8. 이동 규칙 (Logic) ]] --
 local function check_spot(u, x, y)
@@ -389,7 +386,6 @@ function game.get_king_moves(u)
 
     return moves
 end
-
 
 function game.do_attack(attacker, defender)
 
@@ -578,6 +574,7 @@ end
 function game.is_king(u)
     return u.type == "Chess_King_White" or u.type == "Chess_King_Black"
 end
+
 function game.ai_score_move(u, mv)
     local x, y = mv.x, mv.y
     local target = wesnoth.get_unit(x, y)
@@ -602,7 +599,6 @@ function game.ai_score_move(u, mv)
 
     return score
 end
-
 
 function game.end_game(dead_side)
     -- 1. 경로 및 이미지 설정
@@ -803,8 +799,6 @@ function game.handle_promotion(u)
     wesnoth.wml_actions.redraw{}
 end
 
-
-
 function game.get_promotion_unit(side, choice)
     if side == 1 then
         if choice == 1 then return "Chess_Queen_White"
@@ -848,8 +842,5 @@ function game.print_threats_on_tile(tile_x, tile_y, side)
     
     return threats
 end
-
-
-
 
 return game
