@@ -479,7 +479,7 @@ function game.ai_turn()
     ------------------------------------------------------------------
     if not final_unit or not final_move then
         wesnoth.message("AI", "흑색은 어떤 이동도 할 수 없습니다.")
-        wesnoth.fire("end_turn")
+        game.end_game(2)
         return
     end
 
